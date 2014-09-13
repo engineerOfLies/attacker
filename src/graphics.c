@@ -14,6 +14,7 @@ SDL_Rect Abs_Camera; /* this just keeps track of how far in the current level we
 SPRITE SpriteList[MaxSprites];
 SPRITE WindowList[MaxWindows];
 Entity *Mouse;
+Uint32 NOW;
 int NumSprites;
 int NumWindows;
 extern int NumLives;
@@ -117,11 +118,26 @@ void ResetBuffer()
     SDL_BlitSurface(buffer,&Camera,screen,NULL);
 }
 
+/*
+  makes sure a minimum number of ticks is waited between frames
+  this is to ensure that on faster machines the game won't move so fast that
+  it will look terrible.
+  This is a very handy function in game programming.
+*/
+
+void FrameDelay(Uint32 delay)
+{
+    static Uint32 pass = 100;
+    Uint32 dif;
+    dif = SDL_GetTicks() - pass;
+    if(dif < delay)SDL_Delay( delay - dif);
+    pass = SDL_GetTicks();
+}
+
 void NextFrame()
 {
   Uint32 Then;
-  SDL_BlitSurface(screen,NULL,videobuffer,NULL);/*copy everything we did to the video surface*/
-  SDL_Flip(videobuffer);							/*and then update the screen*/
+  SDL_Flip(screen);							/*and then update the screen*/
   Then = NOW;									/*these next few lines  are used to show how long each frame takes to update.  */
   NOW = SDL_GetTicks();
   FrameDelay(15); /*this will make your frame rate about 30 frames per second.  If you want 60 fps then set it to about 15 or 16*/
@@ -630,22 +646,6 @@ void PaintWindow(SDL_Surface *buffer, int x,int y,int w, int h,Uint32 color)
     r.h = h;
     SDL_FillRect(buffer, &r, color);
     booton(buffer,x,y,w,h);
-}
-
-/*
-  makes sure a minimum number of ticks is waited between frames
-  this is to ensure that on faster machines the game won't move so fast that
-  it will look terrible.
-  This is a very handy function in game programming.
-*/
-
-void FrameDelay(Uint32 delay)
-{
-    static Uint32 pass = 100;
-    Uint32 dif;
-    dif = SDL_GetTicks() - pass;
-    if(dif < delay)SDL_Delay( delay - dif);
-    pass = SDL_GetTicks();
 }
 
 /*sets an sdl surface to all color.*/
